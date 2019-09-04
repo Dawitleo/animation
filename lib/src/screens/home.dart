@@ -11,11 +11,33 @@ class HomeState extends State<Home> with TickerProviderStateMixin{
 
   Animation<double> catAnimation;
   AnimationController catController;
-
+  Animation<double> boxAnimation;
+  AnimationController boxController;
 
   initState(){
     super.initState();
-    
+
+    boxController = AnimationController(
+      duration: Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    boxAnimation = Tween(begin: pi*.6, end: pi*.65).animate(
+      CurvedAnimation(
+        parent: boxController,
+        curve: Curves.linear,
+      ),
+    );  
+
+    boxAnimation.addStatusListener((status){
+      if(status == AnimationStatus.completed){
+        boxController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        boxController.forward();
+      }
+    });
+
+    boxController.forward();
     catController = AnimationController(
       duration: Duration(milliseconds: 200),
       vsync: this,
@@ -83,35 +105,47 @@ class HomeState extends State<Home> with TickerProviderStateMixin{
   }
 
   Widget buildLeftFlap(){
-
     return Positioned(
-      left: 8.5,
-      top: 3.0,
-      child: Transform.rotate(
+      left: 9.0,
+      top: 3.5,
+      child: AnimatedBuilder(
+        animation: boxAnimation,
         child: Container(
           width: 100.0,
           height: 10.0,
           color: Colors.brown,
         ),
-        angle: pi*0.6,
-        alignment: Alignment.topLeft,
+        builder: (context, child){
+          return Transform.rotate(
+            child: child,
+            alignment: Alignment.topLeft,
+            angle: boxAnimation.value,
+          );
+        },
       ),
     );
   }
 
   Widget buildRightFlap(){
     return Positioned(
-      left: 91.5,
-      top: 3.0,
-      child: Transform.rotate(
+      right: 9.0,
+      top: 3.5,
+      child: AnimatedBuilder(
+        animation: boxAnimation,
         child: Container(
           width: 100.0,
           height: 10.0,
           color: Colors.brown,
         ),
-        angle: -pi*0.6,
-        alignment: Alignment.topRight,
+        builder: (context, child){
+          return Transform.rotate(
+            child: child,
+            alignment: Alignment.topRight,
+            angle: -boxAnimation.value,
+          );
+        },
       ),
     );
   }
+
 }
